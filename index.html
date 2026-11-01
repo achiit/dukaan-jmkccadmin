@@ -1,0 +1,720 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JMKCC Admin Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F5F7FB;--card:#FFFFFF;--primary:#4F46E5;--primary-light:#EEF2FF;--green:#10B981;--green-light:#D1FAE5;--red:#EF4444;--red-light:#FEE2E2;--yellow:#F59E0B;--yellow-light:#FEF3C7;--blue:#3B82F6;--blue-light:#DBEAFE;--text:#0F172A;--text-mid:#475569;--text-light:#94A3B8;--border:#E2E8F0;--shadow-sm:0 1px 3px rgba(15,23,42,.06);--shadow-xl:0 20px 60px rgba(15,23,42,.25);--grad-primary:linear-gradient(135deg,#6366F1 0%,#4F46E5 50%,#3730A3 100%);--grad-green:linear-gradient(135deg,#34D399,#10B981);--grad-red:linear-gradient(135deg,#F87171,#EF4444);}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;font-family:'Plus Jakarta Sans',sans-serif;}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);}
+.hidden{display:none!important;}
+button{cursor:pointer;border:none;font-family:inherit;font-weight:700;transition:.15s;}
+button:active{transform:scale(.96);}
+input,select,textarea{font-family:inherit;outline:none;user-select:text;}
+::-webkit-scrollbar{width:6px;height:6px;}::-webkit-scrollbar-thumb{background:#CBD5E1;border-radius:6px;}
+
+#login-screen{position:fixed;inset:0;z-index:999;background:radial-gradient(circle at 20% 20%,#4F46E5 0%,transparent 50%),radial-gradient(circle at 80% 80%,#7C3AED 0%,transparent 50%),#0F172A;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:24px;color:#fff;}
+.login-box{width:100%;max-width:380px;background:rgba(255,255,255,.1);backdrop-filter:blur(20px);border-radius:24px;padding:32px 24px;border:1px solid rgba(255,255,255,.2);}
+.login-logo{width:80px;height:80px;border-radius:24px;background:linear-gradient(135deg,#fff,#E0E7FF);display:flex;align-items:center;justify-content:center;font-size:40px;margin:0 auto 20px;}
+#login-screen h1{font-size:26px;font-weight:800;margin-bottom:20px;text-align:center;}
+.login-input{width:100%;padding:14px 16px;border-radius:12px;border:1.5px solid rgba(255,255,255,.2);background:rgba(255,255,255,.1);color:#fff;font-size:14px;font-weight:600;margin-bottom:12px;}
+.login-input::placeholder{color:rgba(255,255,255,.6);}
+#login-btn{width:100%;padding:15px;border-radius:12px;background:var(--grad-green);color:#fff;font-size:15px;font-weight:800;margin-top:8px;}
+#denied-msg{background:rgba(239,68,68,.15);color:#FCA5A5;padding:14px;border-radius:12px;margin-top:16px;font-size:12px;font-weight:600;text-align:center;}
+
+#admin-app{display:flex;flex-direction:column;height:100vh;}
+.topbar{background:var(--grad-primary);color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;z-index:50;}
+.icon-btn-top{background:rgba(255,255,255,.15);color:#fff;width:38px;height:38px;border-radius:12px;font-size:18px;}
+.topbar-title{font-size:16px;font-weight:800;flex:1;text-align:center;}
+.logout-btn{background:rgba(255,255,255,.15);color:#fff;padding:0 14px;height:38px;border-radius:12px;font-size:12px;font-weight:800;}
+#drawer-overlay{position:fixed;inset:0;background:rgba(15,23,42,.6);z-index:150;display:none;}
+#drawer-overlay.active{display:block;}
+#sidebar{position:fixed;top:0;left:-290px;width:280px;height:100vh;background:#fff;z-index:200;transition:left .3s;display:flex;flex-direction:column;}
+#sidebar.open{left:0;}
+.sb-header{background:var(--grad-primary);color:#fff;padding:24px 20px;}
+.sb-header h2{font-size:18px;font-weight:800;}
+.sb-header p{font-size:11px;opacity:.85;margin-top:4px;word-break:break-all;}
+.sb-menu{flex:1;overflow-y:auto;padding:12px 0;}
+.sb-item{display:flex;align-items:center;gap:12px;padding:12px 20px;font-size:13.5px;font-weight:700;color:var(--text-mid);cursor:pointer;margin:2px 8px;border-radius:10px;}
+.sb-item:hover,.sb-item.active{background:var(--primary-light);color:var(--primary);}
+.sb-item .ico{font-size:18px;width:24px;text-align:center;}
+#content{flex:1;overflow-y:auto;padding:16px;padding-bottom:40px;}
+.section-title{font-size:22px;font-weight:800;margin-bottom:16px;display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap;}
+.add-btn{background:var(--grad-green);color:#fff;padding:10px 18px;border-radius:12px;font-size:13px;font-weight:800;}
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:20px;}
+.stat-card{background:#fff;border-radius:18px;padding:18px;box-shadow:var(--shadow-sm);border:1px solid var(--border);position:relative;overflow:hidden;}
+.stat-card::before{content:'';position:absolute;top:0;left:0;width:100%;height:3px;background:var(--grad-primary);}
+.stat-card.green::before{background:var(--grad-green);}.stat-card.red::before{background:var(--grad-red);}.stat-card.yellow::before{background:linear-gradient(135deg,#FBBF24,#F59E0B);}
+.stat-card h3{font-size:32px;font-weight:800;line-height:1;}
+.stat-card p{font-size:11px;color:var(--text-light);font-weight:800;margin-top:8px;text-transform:uppercase;}
+.filter-bar{display:flex;gap:6px;margin-bottom:14px;background:#fff;padding:6px;border-radius:14px;border:1px solid var(--border);}
+.filter-tab{flex:1;padding:10px;border-radius:10px;font-size:12px;font-weight:800;background:transparent;color:var(--text-light);}
+.filter-tab.active{background:var(--grad-primary);color:#fff;}
+.search-bar{display:flex;align-items:center;gap:10px;background:#fff;border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;margin-bottom:14px;}
+.search-bar input{flex:1;border:none;background:transparent;font-size:14px;font-weight:600;}
+.item-card{background:#fff;border-radius:16px;padding:14px 16px;margin-bottom:10px;box-shadow:var(--shadow-sm);border:1px solid var(--border);display:flex;justify-content:space-between;align-items:center;gap:12px;transition:.2s;}
+.item-card.removing{opacity:0;transform:scale(.95);}
+.item-info{flex:1;min-width:0;}.item-info h4{font-size:14px;font-weight:800;margin-bottom:6px;word-break:break-word;}
+.item-info p{font-size:11px;color:var(--text-light);line-height:1.5;font-weight:600;}
+.item-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;}
+.badge{display:inline-block;font-size:9.5px;font-weight:800;padding:3px 8px;border-radius:6px;margin-right:4px;text-transform:uppercase;}
+.badge.green{background:var(--green-light);color:#059669;}.badge.red{background:var(--red-light);color:#DC2626;}.badge.yellow{background:var(--yellow-light);color:#D97706;}.badge.blue{background:var(--blue-light);color:#2563EB;}.badge.purple{background:#EDE9FE;color:#7C3AED;}
+.act-btn{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:14px;background:var(--primary-light);color:var(--primary);}
+.act-btn.del{background:var(--red-light);color:var(--red);}
+.act-btn.publish{background:var(--green-light);color:#059669;}
+.act-btn.draft{background:var(--yellow-light);color:#D97706;}
+#modal{position:fixed;inset:0;background:rgba(15,23,42,.7);z-index:300;display:none;justify-content:center;align-items:center;padding:16px;backdrop-filter:blur(6px);}
+#modal.active{display:flex;}
+.modal-box{background:#fff;border-radius:24px;width:100%;max-width:520px;max-height:88vh;overflow-y:auto;padding:24px;}
+.modal-box h3{font-size:20px;font-weight:800;margin-bottom:20px;display:flex;justify-content:space-between;align-items:center;}
+.modal-close{background:var(--bg);color:var(--text-mid);width:34px;height:34px;border-radius:50%;font-size:18px;}
+.form-group{margin-bottom:14px;}
+.form-group label{display:block;font-size:11px;font-weight:800;color:var(--text-mid);margin-bottom:6px;text-transform:uppercase;}
+.form-input{width:100%;padding:12px 14px;border:1.5px solid var(--border);border-radius:12px;font-size:14px;background:#F8FAFC;color:var(--text);font-weight:600;}
+.form-input:focus{border-color:var(--primary);background:#fff;}
+textarea.form-input{resize:vertical;min-height:80px;}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.toggle-row{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:#fff;border-radius:12px;margin-bottom:10px;border:1px solid var(--border);gap:12px;}
+.toggle-row .left{flex:1;}
+.toggle-row .left h4{font-size:13px;font-weight:800;margin-bottom:2px;}
+.toggle-row .left p{font-size:11px;color:var(--text-light);font-weight:600;}
+.switch{position:relative;width:52px;height:30px;background:#CBD5E1;border-radius:15px;cursor:pointer;flex-shrink:0;transition:.2s;}
+.switch.on{background:var(--green);}
+.switch::after{content:'';position:absolute;top:3px;left:3px;width:24px;height:24px;background:#fff;border-radius:50%;transition:.2s;}
+.switch.on::after{left:25px;}
+.btn-primary{background:var(--grad-primary);color:#fff;padding:14px;border-radius:12px;font-size:14px;font-weight:800;width:100%;margin-top:8px;}
+.btn-secondary{background:#F1F5F9;color:var(--text);padding:14px;border-radius:12px;font-size:14px;font-weight:800;width:100%;margin-top:8px;}
+.btn-group{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px;}
+.q-builder{background:var(--primary-light);border-radius:14px;padding:14px;margin-bottom:12px;position:relative;border:1px solid #C7D2FE;}
+.q-num{background:var(--primary);color:#fff;display:inline-block;padding:4px 12px;border-radius:8px;font-size:11px;font-weight:800;margin-bottom:10px;}
+.q-remove{position:absolute;top:10px;right:10px;background:var(--red);color:#fff;width:28px;height:28px;border-radius:8px;font-size:14px;}
+.opt-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;background:#fff;padding:8px;border-radius:10px;}
+.opt-row input[type="radio"]{width:18px;height:18px;accent-color:var(--green);}
+.opt-row input[type="text"]{flex:1;padding:8px 10px;border:1px solid var(--border);border-radius:8px;font-size:13px;}
+.opt-row .opt-label{font-size:10px;font-weight:800;color:var(--text-light);width:20px;}
+.empty{text-align:center;padding:50px 20px;color:var(--text-light);font-weight:600;}
+.empty .big{font-size:56px;margin-bottom:14px;opacity:.6;}
+.loader{width:44px;height:44px;border:4px solid var(--primary-light);border-top-color:var(--primary);border-radius:50%;animation:spin .7s linear infinite;margin:30px auto;}
+@keyframes spin{to{transform:rotate(360deg);}}
+#toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(150%);background:var(--text);color:#fff;padding:14px 24px;border-radius:14px;font-size:13px;font-weight:700;z-index:500;transition:.3s;}
+#toast.show{transform:translateX(-50%) translateY(0);}
+#toast.error{background:var(--red);}#toast.success{background:var(--green);}
+@media(min-width:800px){.stats-grid{grid-template-columns:repeat(4,1fr);}}
+.feature-grid{display:grid;gap:8px;}
+.feature-card{background:#fff;border-radius:14px;padding:14px;display:flex;justify-content:space-between;align-items:center;border:1px solid var(--border);gap:12px;}
+.feature-card.off{background:#FEF2F2;border-color:#FECACA;}
+.feature-card .fc-left{flex:1;}
+.feature-card .fc-left h4{font-size:13px;font-weight:800;margin-bottom:2px;}
+.feature-card .fc-left p{font-size:11px;color:var(--text-light);font-weight:600;}
+.maint-card{background:#fff;border-radius:18px;padding:18px;margin-bottom:20px;border:2px solid var(--border);}
+.maint-card.active{border-color:#FCA5A5;background:#FEF2F2;}
+.logo-preview{width:80px;height:80px;border-radius:20px;object-fit:cover;border:3px solid var(--primary-light);background:#F8FAFC;}
+</style>
+</head>
+<body>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-logo">🎛️</div>
+    <h1>JMKCC Admin</h1>
+    <input class="login-input" type="email" id="login-email" placeholder="Email">
+    <input class="login-input" type="password" id="login-pass" placeholder="Password">
+    <button id="login-btn" onclick="loginWithEmail()">🔓 Login</button>
+    <div id="denied-msg" class="hidden"></div>
+  </div>
+</div>
+
+<div id="admin-app" class="hidden">
+  <header class="topbar">
+    <button class="icon-btn-top" onclick="toggleDrawer()">☰</button>
+    <div class="topbar-title" id="page-title">Dashboard</div>
+    <button class="logout-btn" onclick="logout()">Logout</button>
+  </header>
+  <div id="drawer-overlay" onclick="toggleDrawer()"></div>
+  <aside id="sidebar">
+    <div class="sb-header"><h2>🎛️ Admin Pro</h2><p id="admin-email">—</p></div>
+    <div class="sb-menu" id="sb-menu"></div>
+  </aside>
+  <main id="content"></main>
+</div>
+
+<div id="modal" onclick="if(event.target.id==='modal')closeModal()"><div class="modal-box" id="modal-box"></div></div>
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { getFirestore, doc, getDoc, setDoc, addDoc, updateDoc, deleteDoc, collection, getDocs, query, orderBy, limit, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { getFunctions, httpsCallable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-functions.js";
+
+const ADMIN_EMAILS = ["jmkcc425@gmail.com"];
+const firebaseConfig = { apiKey:"AIzaSyBvSzyAokTjxghA1kE1Ax97j4q_HeADtRI", authDomain:"jmkcc-c09c7.firebaseapp.com", projectId:"jmkcc-c09c7", storageBucket:"jmkcc-c09c7.firebasestorage.app", messagingSenderId:"659653592447", appId:"1:659653592447:web:6d442dc59550f14226c64a" };
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+const functions = getFunctions(app);
+
+const CLASSES = ['9th','10th','11th','12th'];
+const DEFAULT_LOGO = 'https://i.ibb.co/ycf1gWjz/file-0000000029f082089bbd35f27746b551.png';
+const $ = id => document.getElementById(id);
+const esc = s => String(s||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+let currentAdmin = null;
+let testQuestions = [];
+
+const FEATURES = [
+  {id:'home', label:'🏠 Home', desc:'Home page access'},
+  {id:'banners', label:'🖼️ Banners', desc:'Home page banner slider'},
+  {id:'live_class', label:'🔴 Live Class', desc:'Live class banner + join button'},
+  {id:'courses', label:'📚 All Courses', desc:'Master switch for all courses'},
+  {id:'paid_courses', label:'💰 Paid Courses', desc:'Only paid courses section'},
+  {id:'free_courses', label:'🎓 Free Courses', desc:'Only free courses section'},
+  {id:'tests', label:'📝 All Tests', desc:'Master switch for all tests'},
+  {id:'free_tests', label:'📝 Free Tests', desc:'Free tests grid'},
+  {id:'book_tests', label:'📖 Book Tests', desc:'Book-wise tests'},
+  {id:'notes', label:'📄 Notes', desc:'Study material / PDF notes'},
+  {id:'ncert', label:'📕 NCERT Books', desc:'NCERT PDF books'},
+  {id:'papers', label:'📋 Papers & Updates', desc:'Previous year papers'},
+  {id:'timetable', label:'📅 Timetable', desc:'Class timetable'},
+  {id:'leaderboard', label:'🏆 Leaderboard', desc:'Top students list'},
+  {id:'payments', label:'💳 Payments', desc:'Payment gateway / UPI'},
+  {id:'doubts', label:'❓ Ask Doubt', desc:'Doubt submission button'},
+  {id:'chat', label:'💬 Chat Support', desc:'WhatsApp floating button'},
+  {id:'notifications', label:'🔔 Notifications', desc:'Notification bell + page'},
+  {id:'profile', label:'👤 Profile', desc:'Profile page access'},
+];
+
+/* ===== AUTH ===== */
+onAuthStateChanged(auth, user => {
+  if(user){
+    if(ADMIN_EMAILS.map(e=>e.toLowerCase()).includes((user.email||'').toLowerCase())){
+      currentAdmin = user;
+      $('login-screen').classList.add('hidden');
+      $('admin-app').classList.remove('hidden');
+      $('admin-email').innerText = user.email;
+      buildSidebar(); navigate('dashboard');
+    } else {
+      $('denied-msg').classList.remove('hidden');
+      $('denied-msg').innerHTML = `❌ ${esc(user.email)} admin nahi hai`;
+      setTimeout(()=>signOut(auth), 2000);
+    }
+  } else {
+    currentAdmin = null;
+    $('login-screen').classList.remove('hidden');
+    $('admin-app').classList.add('hidden');
+    $('denied-msg').classList.add('hidden');
+    $('login-btn').disabled = false;
+    $('login-btn').textContent = '🔓 Login';
+  }
+});
+
+window.loginWithEmail = async () => {
+  const email = $('login-email').value.trim();
+  const pass = $('login-pass').value;
+  const btn = $('login-btn');
+  if(!email || !pass) return toast('Email + Password daalo', 'error');
+  btn.disabled = true; btn.textContent = 'Logging in...';
+  try { await signInWithEmailAndPassword(auth, email, pass); }
+  catch(e) { toast('❌ ' + e.message, 'error'); btn.disabled = false; btn.textContent = '🔓 Login'; }
+};
+
+document.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && !$('login-screen').classList.contains('hidden')) loginWithEmail();
+});
+
+window.logout = async () => { if(confirm('Logout?')) await signOut(auth); };
+
+window.toggleDrawer = () => { $('sidebar').classList.toggle('open'); $('drawer-overlay').classList.toggle('active'); };
+function closeDrawer(){ $('sidebar').classList.remove('open'); $('drawer-overlay').classList.remove('active'); }
+window.toast = (msg, type='success') => { const t=$('toast'); t.innerText=msg; t.className=type+' show'; clearTimeout(window._tt); window._tt=setTimeout(()=>t.classList.remove('show'),2500); };
+window.openModal = html => { $('modal-box').innerHTML=html; $('modal').classList.add('active'); };
+window.closeModal = () => $('modal').classList.remove('active');
+
+const MENU = [
+  {id:'dashboard',icon:'📊',label:'Dashboard'},
+  {id:'features',icon:'🎛️',label:'Feature Controls'},
+  {id:'settings',icon:'⚙️',label:'App Settings'},
+  {id:'banners',icon:'🖼️',label:'Banners'},
+  {id:'courses',icon:'📚',label:'Courses'},
+  {id:'subjects',icon:'📖',label:'Subjects'},
+  {id:'tests',icon:'📝',label:'Tests'},
+  {id:'notes',icon:'📄',label:'Notes'},
+  {id:'ncert',icon:'📕',label:'NCERT Books'},
+  {id:'papers',icon:'📋',label:'Papers'},
+  {id:'timetable',icon:'📅',label:'Timetable'},
+  {id:'notifications',icon:'🔔',label:'Notifications'},
+  {id:'payments',icon:'💳',label:'Payments'},
+  {id:'doubts',icon:'❓',label:'Doubts'},
+  {id:'users',icon:'👥',label:'Users'},
+];
+
+function buildSidebar(){ $('sb-menu').innerHTML = MENU.map(m=>`<div class="sb-item" data-id="${m.id}" onclick="navigate('${m.id}')"><span class="ico">${m.icon}</span> ${m.label}</div>`).join(''); }
+
+const sections = { dashboard:renderDashboard, features:renderFeatures, settings:renderSettings, banners:renderBanners, courses:renderCourses, subjects:renderSubjects, tests:renderTests, notes:renderNotes, ncert:renderNcert, papers:renderPapers, timetable:renderTimetable, notifications:renderNotifications, payments:renderPayments, doubts:renderDoubts, users:renderUsers };
+
+window.navigate = async sec => {
+  document.querySelectorAll('.sb-item').forEach(el=>el.classList.toggle('active', el.dataset.id===sec));
+  const menu = MENU.find(m=>m.id===sec);
+  $('page-title').innerText = menu?menu.label:'Admin';
+  $('content').innerHTML = '<div class="loader"></div>';
+  closeDrawer();
+  try { await sections[sec](); }
+  catch(e){ $('content').innerHTML = `<div class="empty"><div class="big">⚠️</div>Error: ${esc(e.message)}</div>`; }
+};
+
+async function fetchAll(colName){ const snap = await getDocs(collection(db,colName)); return snap.docs.map(d=>({id:d.id,...d.data()})); }
+async function create(col,data){ return await addDoc(collection(db,col),data); }
+async function update(col,id,data){ return await updateDoc(doc(db,col,id),data); }
+async function remove(col,id){ return await deleteDoc(doc(db,col,id)); }
+
+window._filters={}; window._searches={};
+function getFilter(k){ return window._filters[k]||'all'; }
+function getSearch(k){ return (window._searches[k]||'').toLowerCase(); }
+window.setFilter=(k,v,f)=>{ window._filters[k]=v; if(typeof window[f]==='function') window[f](); };
+window.setSearch=(k,v,f)=>{ window._searches[k]=v; if(typeof window[f]==='function') window[f](); };
+function filterBar(key,fn){ const cur=getFilter(key); return `<div class="filter-bar">${['all','live','draft'].map(f=>`<button class="filter-tab ${cur===f?'active':''}" onclick="setFilter('${key}','${f}','${fn}')">${f==='all'?'📋 All':f==='live'?'🟢 Live':'🔴 Draft'}</button>`).join('')}</div>`; }
+function searchBar(key,fn,p='Search...'){ return `<div class="search-bar"><span>🔍</span><input placeholder="${p}" value="${esc(window._searches[key]||'')}" oninput="setSearch('${key}',this.value,'${fn}')"></div>`; }
+function applyFilterSearch(items,key,tf='title'){ let f=items; const filter=getFilter(key); if(filter==='live') f=f.filter(i=>i.isPublished!==false); else if(filter==='draft') f=f.filter(i=>i.isPublished===false); const s=getSearch(key); if(s) f=f.filter(i=>(i[tf]||'').toLowerCase().includes(s)); return f; }
+
+async function getFeatures(){
+  const snap = await getDoc(doc(db,'settings','app'));
+  const saved = snap.exists() ? (snap.data().features || {}) : {};
+  const result = {};
+  FEATURES.forEach(f => { result[f.id] = saved[f.id] !== false; });
+  return result;
+}
+async function saveFeatures(features){ await setDoc(doc(db,'settings','app'), {features}, {merge:true}); }
+
+async function getMaintenance(){
+  const snap = await getDoc(doc(db,'settings','app'));
+  const m = snap.exists() ? (snap.data().maintenance || {}) : {};
+  return { enabled: m.enabled === true, imageUrl: m.imageUrl || '', title: m.title || 'App Under Maintenance', message: m.message || "We'll be back soon!" };
+}
+
+async function getFeatureBlocks(){
+  const snap = await getDoc(doc(db,'settings','app'));
+  return (snap.exists() ? (snap.data().featureBlocks || {}) : {});
+}
+
+async function renderFeatures(){
+  const features = await getFeatures();
+  const blocks = await getFeatureBlocks();
+  const maint = await getMaintenance();
+  const onCount = Object.values(features).filter(v=>v).length;
+  $('content').innerHTML = `
+    <div class="section-title">🎛️ Feature Controls <span style="font-size:13px;color:var(--text-light);font-weight:700;">${onCount}/${FEATURES.length} ON</span></div>
+    <div class="maint-card ${maint.enabled?'active':''}">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;">
+        <div style="flex:1;">
+          <h3 style="font-size:16px;font-weight:800;margin-bottom:2px;">🚫 Maintenance Mode</h3>
+          <p style="font-size:11px;color:var(--text-light);font-weight:600;line-height:1.4;">ON karo to PURA APP block — sabhi users ko sirf ye screen dikhegi</p>
+        </div>
+        <div class="switch ${maint.enabled?'on':''}" id="m-enabled" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <div class="form-group"><label>Block Image URL</label><input class="form-input" id="m-image" value="${esc(maint.imageUrl)}" placeholder="https://example.com/maintenance.png"></div>
+      <div class="form-group"><label>Block Title</label><input class="form-input" id="m-title" value="${esc(maint.title)}"></div>
+      <div class="form-group"><label>Block Message</label><textarea class="form-input" id="m-message" rows="3">${esc(maint.message)}</textarea></div>
+      <button class="btn-primary" onclick="saveMaintenance()">💾 Save Maintenance Settings</button>
+    </div>
+    <div class="btn-group" style="margin-bottom:14px;">
+      <button class="btn-secondary" style="margin-top:0" onclick="toggleAllFeatures(false)">🔴 All OFF</button>
+      <button class="btn-primary" style="margin-top:0" onclick="toggleAllFeatures(true)">🟢 All ON</button>
+    </div>
+    <div style="font-size:13px;font-weight:800;color:var(--text-mid);margin-bottom:10px;text-transform:uppercase;">Section Switches</div>
+    <div class="feature-grid">
+      ${FEATURES.map(f => {
+        const b = blocks[f.id] || {};
+        const hasBlock = !!(b.imageUrl || b.title || b.message);
+        return `<div class="feature-card ${features[f.id]?'':'off'}">
+          <div class="fc-left">
+            <h4>${f.label} ${hasBlock?'<span style="color:var(--primary);font-size:10px;">● custom</span>':''}</h4>
+            <p>${f.desc}</p>
+          </div>
+          <div style="display:flex;gap:6px;align-items:center;">
+            <button class="act-btn" style="width:auto;padding:0 10px;font-size:11px;background:var(--primary-light);color:var(--primary);" onclick="editFeatureBlock('${f.id}')">✏️ Block</button>
+            <div class="switch ${features[f.id]?'on':''}" onclick="toggleFeature('${f.id}')"></div>
+          </div>
+        </div>`;
+      }).join('')}
+    </div>`;
+}
+window.renderFeatures = renderFeatures;
+
+window.toggleFeature = async (id) => {
+  const features = await getFeatures();
+  features[id] = !features[id];
+  await saveFeatures(features);
+  toast(features[id] ? `✅ ${id} ON` : `🔴 ${id} OFF`);
+  renderFeatures();
+};
+window.toggleAllFeatures = async (on) => {
+  if(!confirm(`Sabhi features ${on?'ON':'OFF'} karein?`)) return;
+  const features = {}; FEATURES.forEach(f => { features[f.id] = on; });
+  await saveFeatures(features); toast(on ? '🟢 All ON' : '🔴 All OFF'); renderFeatures();
+};
+window.saveMaintenance = async () => {
+  const data = { enabled: $('m-enabled').classList.contains('on'), imageUrl: $('m-image').value.trim(), title: $('m-title').value.trim(), message: $('m-message').value.trim() };
+  try { await setDoc(doc(db,'settings','app'), {maintenance: data}, {merge:true}); toast(data.enabled ? '🚫 Maintenance ON' : '✅ Maintenance OFF'); renderFeatures(); }
+  catch(e){ toast('Error: '+e.message,'error'); }
+};
+window.editFeatureBlock = async (id) => {
+  const blocks = await getFeatureBlocks();
+  const b = blocks[id] || {};
+  const f = FEATURES.find(x=>x.id===id);
+  openModal(`
+    <h3>🚫 Block — ${f?f.label:id} <button class="modal-close" onclick="closeModal()">✕</button></h3>
+    <p style="font-size:12px;color:var(--text-light);margin-bottom:14px;">Jab ye feature OFF ho, user ko ye screen dikhegi.</p>
+    <div class="form-group"><label>Image URL</label><input class="form-input" id="fb-image" value="${esc(b.imageUrl||'')}" placeholder="https://..."></div>
+    <div class="form-group"><label>Title</label><input class="form-input" id="fb-title" value="${esc(b.title||'')}" placeholder="Coming Soon"></div>
+    <div class="form-group"><label>Message</label><textarea class="form-input" id="fb-message" rows="3">${esc(b.message||'')}</textarea></div>
+    <div class="btn-group">
+      <button class="btn-secondary" style="margin-top:0" onclick="clearFeatureBlock('${id}')">🗑 Clear</button>
+      <button class="btn-primary" style="margin-top:0" onclick="saveFeatureBlock('${id}')">💾 Save</button>
+    </div>`);
+};
+window.saveFeatureBlock = async (id) => {
+  const blocks = await getFeatureBlocks();
+  blocks[id] = { imageUrl: $('fb-image').value.trim(), title: $('fb-title').value.trim(), message: $('fb-message').value.trim() };
+  try { await setDoc(doc(db,'settings','app'), {featureBlocks: blocks}, {merge:true}); toast('✅ Saved'); closeModal(); renderFeatures(); }
+  catch(e){ toast('Error: '+e.message,'error'); }
+};
+window.clearFeatureBlock = async (id) => {
+  if(!confirm('Custom block hata dein?')) return;
+  const blocks = await getFeatureBlocks(); delete blocks[id];
+  try { await setDoc(doc(db,'settings','app'), {featureBlocks: blocks}, {merge:true}); toast('🗑 Cleared'); closeModal(); renderFeatures(); }
+  catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+async function renderDashboard(){
+  const [users,courses,tests,payments,doubts,features,maint] = await Promise.all([fetchAll('users'),fetchAll('courses'),fetchAll('tests'),fetchAll('payments'),fetchAll('doubts'),getFeatures(),getMaintenance()]);
+  const pendingPay = payments.filter(p=>p.status==='pending').length;
+  const pendingDoubt = doubts.filter(d=>d.status==='pending').length;
+  const liveCourses = courses.filter(c=>c.isPublished!==false).length;
+  const offFeatures = Object.entries(features).filter(([_,v])=>!v);
+  $('content').innerHTML = `
+    <div class="section-title">📊 Overview</div>
+    ${maint.enabled ? '<div style="background:#FEE2E2;padding:14px;border-radius:12px;margin-bottom:14px;border:1px solid #FECACA;color:#DC2626;font-weight:800;text-align:center;">🚫 MAINTENANCE MODE ON</div>' : ''}
+    <div class="stats-grid">
+      <div class="stat-card blue"><h3>${users.length}</h3><p>Students</p></div>
+      <div class="stat-card green"><h3>${liveCourses}</h3><p>Live Courses</p></div>
+      <div class="stat-card yellow"><h3>${tests.length}</h3><p>Tests</p></div>
+      <div class="stat-card red"><h3>${pendingPay}</h3><p>Pending Pay</p></div>
+      <div class="stat-card red"><h3>${pendingDoubt}</h3><p>Doubts</p></div>
+    </div>
+    ${offFeatures.length > 0 ? `<div class="section-title" style="margin-top:24px;font-size:16px;">🔴 OFF Features</div>
+      <div style="background:#FEF2F2;padding:14px;border-radius:12px;border:1px solid #FECACA;">
+        ${offFeatures.map(([k])=>`<span class="badge red" style="margin:2px;">${k}</span>`).join('')}
+      </div>` : '<div style="background:#D1FAE5;padding:14px;border-radius:12px;color:#059669;font-weight:800;text-align:center;">✅ Sabhi features ON</div>'}
+    <div class="btn-primary" style="margin-top:20px;text-align:center;" onclick="navigate('features')">🎛️ Feature Controls</div>`;
+}
+window.renderDashboard = renderDashboard;
+
+/* ===== SETTINGS WITH LOGO ===== */
+async function renderSettings(){
+  const snap = await getDoc(doc(db,"settings","app")); const d = snap.exists()?snap.data():{};
+  const currentLogo = d.logoUrl || DEFAULT_LOGO;
+  $('content').innerHTML = `
+    <div class="section-title">⚙️ App Settings</div>
+    
+    <!-- LOGO CARD -->
+    <div style="background:#fff;border-radius:18px;padding:18px;border:1px solid var(--border);margin-bottom:16px;">
+      <h3 style="font-size:15px;font-weight:800;margin-bottom:14px;">🎨 App Logo</h3>
+      <div style="display:flex;align-items:center;gap:16px;margin-bottom:14px;">
+        <img id="logo-preview" class="logo-preview" src="${esc(currentLogo)}" onerror="this.src='${DEFAULT_LOGO}'">
+        <div style="flex:1;">
+          <div style="font-size:12px;font-weight:800;color:var(--text-mid);">Current Logo</div>
+          <div style="font-size:11px;color:var(--text-light);margin-top:2px;">User panel me ye dikhega</div>
+        </div>
+      </div>
+      <div class="form-group"><label>Logo Image URL</label><input class="form-input" id="s-logoUrl" value="${esc(d.logoUrl||'')}" placeholder="https://example.com/logo.png" oninput="document.getElementById('logo-preview').src=this.value||'${DEFAULT_LOGO}'"></div>
+      <button class="btn-primary" onclick="saveLogo()">💾 Save Logo</button>
+    </div>
+    
+    <!-- OTHER SETTINGS -->
+    <div style="background:#fff;border-radius:18px;padding:18px;border:1px solid var(--border);">
+      <h3 style="font-size:15px;font-weight:800;margin-bottom:14px;">📱 General</h3>
+      <div class="form-group"><label>App Name / Title</label><input class="form-input" id="s-appName" value="${esc(d.appName||'JMKCC Study')}"></div>
+      <div class="form-group"><label>Chat Title</label><input class="form-input" id="s-chatTitle" value="${esc(d.chatTitle||'Namaste Student! 🙏')}"></div>
+      <div class="form-group"><label>Chat Message</label><textarea class="form-input" id="s-chatMessage">${esc(d.chatMessage||'Kya aapko kisi question ya test mein dikkat aa rahi hai?')}</textarea></div>
+      <div class="form-group"><label>Chat Button Text</label><input class="form-input" id="s-chatButtonText" value="${esc(d.chatButtonText||'Sir se Baat Karein')}"></div>
+      <div class="form-group"><label>WhatsApp Link</label><input class="form-input" id="s-chatLink" value="${esc(d.chatLink||'https://wa.me/919876543210')}"></div>
+      <div class="form-group"><label>UPI ID</label><input class="form-input" id="s-upiId" value="${esc(d.upiId||'')}"></div>
+      <div class="form-group"><label>QR Image URL</label><input class="form-input" id="s-qrCodeUrl" value="${esc(d.qrCodeUrl||'')}"></div>
+      <div class="form-group"><label>Live Class Link <span style="font-size:10px;color:var(--text-light);">(khali = hide)</span></label><input class="form-input" id="s-liveClassLink" value="${esc(d.liveClassLink||'')}"></div>
+      <div class="toggle-row"><div class="left"><h4>Ask Roll Number</h4><p>Test se pehle roll number</p></div><div class="switch ${d.askRollNo?'on':''}" id="s-askRollNo" onclick="this.classList.toggle('on')"></div></div>
+      <div class="toggle-row"><div class="left"><h4>Enable Payments</h4><p>Paid courses allow</p></div><div class="switch ${d.enablePayments!==false?'on':''}" id="s-enablePayments" onclick="this.classList.toggle('on')"></div></div>
+      <button class="btn-primary" onclick="saveSettings()">💾 Save Settings</button>
+    </div>`;
+}
+window.renderSettings = renderSettings;
+
+window.saveLogo = async () => {
+  const url = $('s-logoUrl').value.trim();
+  try {
+    await setDoc(doc(db,"settings","app"), { logoUrl: url, updatedAt: new Date() }, { merge:true });
+    toast(url ? '✅ Logo updated!' : '✅ Logo reset to default');
+  } catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+window.saveSettings = async () => {
+  const data = {
+    appName: $('s-appName').value,
+    chatTitle: $('s-chatTitle').value,
+    chatMessage: $('s-chatMessage').value,
+    chatButtonText: $('s-chatButtonText').value,
+    chatLink: $('s-chatLink').value,
+    upiId: $('s-upiId').value,
+    qrCodeUrl: $('s-qrCodeUrl').value,
+    liveClassLink: $('s-liveClassLink').value.trim(),
+    askRollNo: $('s-askRollNo').classList.contains('on'),
+    enablePayments: $('s-enablePayments').classList.contains('on'),
+    updatedAt: new Date()
+  };
+  try{ await setDoc(doc(db,"settings","app"),data,{merge:true}); toast('✅ Saved!'); }
+  catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+/* ===== BANNERS ===== */
+async function renderBanners(){
+  const snap = await getDoc(doc(db,"settings","app"));
+  const banners = (snap.exists() && snap.data().banners) || [];
+  $('content').innerHTML = `<div class="section-title">🖼️ Banners <button class="add-btn" onclick="addBanner()">➕ Add</button></div>
+    ${banners.length===0?'<div class="empty"><div class="big">🖼️</div>Koi banner nahi</div>':''}
+    ${banners.map((b,i)=>`<div class="item-card" data-id="${i}"><img src="${esc(b)}" style="width:80px;height:50px;border-radius:10px;object-fit:cover;" onerror="this.style.display='none'"><div class="item-info"><h4>Banner ${i+1}</h4><p style="word-break:break-all;">${esc(b)}</p></div><div class="item-actions"><button class="act-btn del" onclick="delBanner(${i})">🗑</button></div></div>`).join('')}`;
+}
+window.renderBanners = renderBanners;
+window.addBanner = () => openModal(`<h3>Add Banner <button class="modal-close" onclick="closeModal()">✕</button></h3><div class="form-group"><label>Image URL</label><input class="form-input" id="new-banner-url"></div><button class="btn-primary" onclick="saveBanner()">Save</button>`);
+window.saveBanner = async () => { const url=$('new-banner-url').value.trim(); if(!url) return toast('URL required','error'); const ref=doc(db,"settings","app"); const snap=await getDoc(ref); const b=(snap.exists()&&snap.data().banners)||[]; b.push(url); await setDoc(ref,{banners:b},{merge:true}); closeModal(); toast('✅ Added'); renderBanners(); };
+window.delBanner = async i => { if(!confirm('Delete?')) return; const ref=doc(db,"settings","app"); const snap=await getDoc(ref); const b=(snap.data().banners||[]).filter((_,idx)=>idx!==i); await setDoc(ref,{banners:b},{merge:true}); toast('Deleted'); renderBanners(); };
+
+/* ===== COURSES ===== */
+async function renderCourses(){
+  const all = await fetchAll('courses');
+  const filtered = applyFilterSearch(all,'courses');
+  $('content').innerHTML = `<div class="section-title">📚 Courses <button class="add-btn" onclick="editCourse()">➕ Add</button></div>
+    ${filterBar('courses','renderCourses')}${searchBar('courses','renderCourses','Search course...')}
+    ${filtered.length===0?'<div class="empty"><div class="big">📚</div>Koi course nahi</div>':''}
+    ${filtered.map(c=>`<div class="item-card" data-id="${c.id}"><div class="item-info"><h4>${esc(c.title||'Untitled')}</h4><p><span class="badge blue">${esc(c.class||'—')}</span><span class="badge ${c.type==='free'?'green':'yellow'}">${c.type||'paid'}</span><span class="badge ${c.isPublished!==false?'green':'red'}">${c.isPublished!==false?'🟢':'🔴'}</span>${c.price?'<span class="badge purple">₹'+c.price+'</span>':''}</p></div><div class="item-actions">${c.isPublished===false?`<button class="act-btn publish" onclick="quickPublish('courses','${c.id}','renderCourses')">🚀</button>`:`<button class="act-btn draft" onclick="quickUnpublish('courses','${c.id}','renderCourses')">⏸</button>`}<button class="act-btn" onclick="editCourse('${c.id}')">✏️</button><button class="act-btn del" onclick="delItem('courses','${c.id}','renderCourses')">🗑</button></div></div>`).join('')}`;
+}
+window.renderCourses = renderCourses;
+window.quickPublish = async (col,id,fn) => { try{ await update(col,id,{isPublished:true}); toast('🟢 Published!'); if(typeof window[fn]==='function') window[fn](); }catch(e){ toast('Error: '+e.message,'error'); } };
+window.quickUnpublish = async (col,id,fn) => { try{ await update(col,id,{isPublished:false}); toast('🔴 Draft'); if(typeof window[fn]==='function') window[fn](); }catch(e){ toast('Error: '+e.message,'error'); } };
+
+window.editCourse = async (id = null) => {
+  let c = {};
+  if(id) { const all = await fetchAll('courses'); c = all.find(x => x.id === id) || {}; }
+  openModal(`
+  <h3>${c.id?'✏️ Edit':'➕ New'} Course <button class="modal-close" onclick="closeModal()">✕</button></h3>
+  <div class="form-group"><label>Title</label><input class="form-input" id="c-title" value="${esc(c.title||'')}"></div>
+  <div class="form-row"><div class="form-group"><label>Class</label><select class="form-input" id="c-class">${CLASSES.map(x=>`<option ${c.class===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="form-group"><label>Type</label><select class="form-input" id="c-type"><option value="paid" ${c.type==='paid'?'selected':''}>Paid</option><option value="free" ${c.type==='free'?'selected':''}>Free</option></select></div></div>
+  <div class="form-row"><div class="form-group"><label>Subject</label><input class="form-input" id="c-subject" value="${esc(c.subject||'')}"></div><div class="form-group"><label>Price</label><input class="form-input" type="number" id="c-price" value="${c.price||0}"></div></div>
+  <div class="form-group"><label>Validity</label><input class="form-input" id="c-validity" value="${esc(c.validity||'Lifetime')}"></div>
+  <div class="form-group"><label>Image URL</label><input class="form-input" id="c-imageUrl" value="${esc(c.imageUrl||'')}"></div>
+  <div class="form-group"><label>Video URL</label><input class="form-input" id="c-videoUrl" value="${esc(c.videoUrl||'')}"></div>
+  <div class="btn-group"><button class="btn-secondary" onclick="saveCourse('${c.id||''}',false)">📄 Draft</button><button class="btn-primary" style="margin-top:0" onclick="saveCourse('${c.id||''}',true)">🚀 Live</button></div>`);
+};
+
+window.saveCourse = async (id,publish) => {
+  const data = { title:$('c-title').value, class:$('c-class').value, type:$('c-type').value, subject:$('c-subject').value, price:Number($('c-price').value)||0, validity:$('c-validity').value, imageUrl:$('c-imageUrl').value, videoUrl:$('c-videoUrl').value, isPublished:publish };
+  if(!data.title) return toast('Title required','error');
+  try{ if(id) await update('courses',id,data); else await create('courses',{...data,createdAt:new Date()}); toast(publish?'🚀 Published!':'📄 Draft saved'); closeModal(); renderCourses(); }catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+/* ===== SUBJECTS ===== */
+async function renderSubjects(){
+  const all = await fetchAll('subjects'); all.sort((a,b)=>(a.order||0)-(b.order||0));
+  const filtered = applyFilterSearch(all,'subjects','name');
+  $('content').innerHTML = `<div class="section-title">📖 Subjects <button class="add-btn" onclick="editSubject()">➕ Add</button></div>${filterBar('subjects','renderSubjects')}${filtered.length===0?'<div class="empty"><div class="big">📖</div>Koi subject nahi</div>':''}${filtered.map(s=>`<div class="item-card" data-id="${s.id}"><div class="item-info"><h4>${esc(s.name||'—')}</h4><p><span class="badge blue">${esc(s.class||'—')}</span><span class="badge ${s.isPublished!==false?'green':'red'}">${s.isPublished!==false?'🟢':'🔴'}</span></p></div><div class="item-actions">${s.isPublished===false?`<button class="act-btn publish" onclick="quickPublish('subjects','${s.id}','renderSubjects')">🚀</button>`:`<button class="act-btn draft" onclick="quickUnpublish('subjects','${s.id}','renderSubjects')">⏸</button>`}<button class="act-btn" onclick="editSubject('${s.id}')">✏️</button><button class="act-btn del" onclick="delItem('subjects','${s.id}','renderSubjects')">🗑</button></div></div>`).join('')}`;
+}
+window.renderSubjects = renderSubjects;
+window.editSubject = async (id = null) => {
+  let s = {};
+  if(id) { const all = await fetchAll('subjects'); s = all.find(x => x.id === id) || {}; }
+  openModal(`<h3>${s.id?'✏️ Edit':'➕ New'} Subject <button class="modal-close" onclick="closeModal()">✕</button></h3>
+  <div class="form-group"><label>Name</label><input class="form-input" id="s-name" value="${esc(s.name||'')}"></div>
+  <div class="form-row"><div class="form-group"><label>Class</label><select class="form-input" id="s-class">${CLASSES.map(x=>`<option ${s.class===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="form-group"><label>Order</label><input class="form-input" type="number" id="s-order" value="${s.order||0}"></div></div>
+  <div class="form-group"><label>Icon URL</label><input class="form-input" id="s-icon" value="${esc(s.icon||'')}"></div>
+  <div class="form-row"><div class="form-group"><label>BG Color</label><input class="form-input" id="s-color" value="${esc(s.color||'#D1FAE5')}"></div><div class="form-group"><label>Text Color</label><input class="form-input" id="s-textColor" value="${esc(s.textColor||'#047857')}"></div></div>
+  <div class="btn-group"><button class="btn-secondary" onclick="saveSubject('${s.id||''}',false)">📄 Draft</button><button class="btn-primary" style="margin-top:0" onclick="saveSubject('${s.id||''}',true)">🚀 Live</button></div>`);
+};
+window.saveSubject = async (id,publish) => {
+  const data = { name:$('s-name').value, class:$('s-class').value, order:Number($('s-order').value)||0, icon:$('s-icon').value, color:$('s-color').value, textColor:$('s-textColor').value, isPublished:publish };
+  if(!data.name) return toast('Name required','error');
+  try{ if(id) await update('subjects',id,data); else await create('subjects',data); toast(publish?'🚀 Published!':'📄 Draft saved'); closeModal(); renderSubjects(); }catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+/* ===== TESTS ===== */
+async function renderTests(){
+  const all = await fetchAll('tests');
+  const filtered = applyFilterSearch(all,'tests');
+  $('content').innerHTML = `<div class="section-title">📝 Tests <button class="add-btn" onclick="editTest()">➕ Add</button></div>${filterBar('tests','renderTests')}${searchBar('tests','renderTests','Search test...')}${filtered.length===0?'<div class="empty"><div class="big">📝</div>Koi test nahi</div>':''}${filtered.map(t=>`<div class="item-card" data-id="${t.id}"><div class="item-info"><h4>${esc(t.title||'Untitled')}</h4><p><span class="badge blue">${esc(t.class||'—')}</span><span class="badge yellow">${esc(t.subject||'—')}</span><span class="badge ${t.isPublished!==false?'green':'red'}">${t.isPublished!==false?'🟢':'🔴'}</span>${(t.questions||[]).length}Q · ${t.duration||30}m</p></div><div class="item-actions">${t.isPublished===false?`<button class="act-btn publish" onclick="quickPublish('tests','${t.id}','renderTests')">🚀</button>`:`<button class="act-btn draft" onclick="quickUnpublish('tests','${t.id}','renderTests')">⏸</button>`}<button class="act-btn" onclick="editTest('${t.id}')">✏️</button><button class="act-btn del" onclick="delItem('tests','${t.id}','renderTests')">🗑</button></div></div>`).join('')}`;
+}
+window.renderTests = renderTests;
+window.editTest = async (id = null) => {
+  let t = {};
+  if(id) { const all = await fetchAll('tests'); t = all.find(x => x.id === id) || {}; }
+  testQuestions = JSON.parse(JSON.stringify(t.questions||[]));
+  const subjects = await fetchAll('subjects');
+  const subjNames = [...new Set(subjects.map(s=>s.name).filter(Boolean))];
+  openModal(`<h3>${t.id?'✏️ Edit':'➕ New'} Test <button class="modal-close" onclick="closeModal()">✕</button></h3>
+    <div class="form-group"><label>Title</label><input class="form-input" id="t-title" value="${esc(t.title||'')}"></div>
+    <div class="form-row"><div class="form-group"><label>Class</label><select class="form-input" id="t-class">${CLASSES.map(x=>`<option ${t.class===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="form-group"><label>Duration (min)</label><input class="form-input" type="number" id="t-duration" value="${t.duration||30}"></div></div>
+    <div class="form-group"><label>Subject</label><input class="form-input" id="t-subject" value="${esc(t.subject||'')}" list="subj-list"><datalist id="subj-list">${subjNames.map(n=>`<option value="${esc(n)}">`).join('')}</datalist></div>
+    <div class="form-row"><div class="form-group"><label>Type</label><select class="form-input" id="t-type"><option value="free" ${t.type!=='paid'?'selected':''}>Free</option><option value="paid" ${t.type==='paid'?'selected':''}>Paid</option></select></div><div class="form-group"><label>Book Test</label><div class="switch ${t.isBookTest?'on':''}" id="t-isBookTest" style="margin-top:8px" onclick="this.classList.toggle('on')"></div></div></div>
+    <div style="margin:16px 0 10px;display:flex;justify-content:space-between;align-items:center;"><label style="font-size:12px;font-weight:800;color:var(--primary);text-transform:uppercase;">❓ Questions (<span id="q-count">${testQuestions.length}</span>)</label><button class="add-btn" style="padding:8px 14px;font-size:12px" onclick="addQuestion()">➕ Add Q</button></div>
+    <div id="q-builder"></div>
+    <div class="btn-group"><button class="btn-secondary" onclick="saveTest('${t.id||''}',false)">📄 Draft</button><button class="btn-primary" style="margin-top:0" onclick="saveTest('${t.id||''}',true)">🚀 Live</button></div>`);
+  renderQB();
+};
+window.addQuestion = () => { testQuestions.push({text:'',options:['','','',''],correct:0}); renderQB(); };
+window.removeQ = i => { testQuestions.splice(i,1); renderQB(); };
+window.updateQ = (i,f,v) => { testQuestions[i][f]=v; };
+window.updateOpt = (i,oi,v) => { testQuestions[i].options[oi]=v; };
+window.setCorrect = (i,oi) => { testQuestions[i].correct=oi; };
+function renderQB(){ const box=$('q-builder'); if(!box) return; const c=$('q-count'); if(c) c.textContent=testQuestions.length; box.innerHTML = testQuestions.map((q,i)=>`<div class="q-builder"><span class="q-num">Q${i+1}</span><button class="q-remove" onclick="removeQ(${i})">✕</button><input class="form-input" style="margin-bottom:10px;font-size:13px" placeholder="Question..." value="${esc(q.text)}" oninput="updateQ(${i},'text',this.value)">${q.options.map((o,oi)=>`<div class="opt-row"><input type="radio" name="c-${i}" ${q.correct===oi?'checked':''} onchange="setCorrect(${i},${oi})"><span class="opt-label">${String.fromCharCode(65+oi)}</span><input type="text" placeholder="Option" value="${esc(o)}" oninput="updateOpt(${i},${oi},this.value)"></div>`).join('')}</div>`).join(''); }
+window.saveTest = async (id,publish) => {
+  const data = { title:$('t-title').value, class:$('t-class').value, subject:$('t-subject').value, duration:Number($('t-duration').value)||30, type:$('t-type').value, isBookTest:$('t-isBookTest').classList.contains('on'), isPublished:publish, questions:testQuestions };
+  if(!data.title) return toast('Title required','error');
+  if(data.questions.length===0) return toast('Add at least 1 question','error');
+  try{ if(id) await update('tests',id,data); else await create('tests',{...data,createdAt:new Date()}); toast(publish?'🚀 Published!':'📄 Draft saved'); closeModal(); renderTests(); }catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+window.delItem = async (col,id,fn) => {
+  if(!confirm('Pakka delete?')) return;
+  const card = document.querySelector(`[data-id="${id}"]`);
+  if(card){ card.classList.add('removing'); setTimeout(()=>card.remove(), 200); }
+  try{ await remove(col,id); toast('✅ Deleted'); }
+  catch(e){ toast('Error: '+e.message,'error'); if(typeof window[fn]==='function') window[fn](); }
+};
+
+/* ===== NOTES / NCERT / PAPERS / TIMETABLE ===== */
+async function renderNotes(){ const all = await fetchAll('notes'); const filtered = applyFilterSearch(all,'notes'); $('content').innerHTML = `<div class="section-title">📄 Notes <button class="add-btn" onclick="editDoc('notes','renderNotes')">➕ Add</button></div>${filterBar('notes','renderNotes')}${filtered.length===0?'<div class="empty"><div class="big">📄</div>Koi notes nahi</div>':''}${filtered.map(n=>`<div class="item-card" data-id="${n.id}"><div class="item-info"><h4>${esc(n.title||'—')}</h4><p><span class="badge blue">${esc(n.class||'—')}</span><span class="badge yellow">${esc(n.subject||'')}</span><span class="badge ${n.isPublished!==false?'green':'red'}">${n.isPublished!==false?'🟢':'🔴'}</span></p></div><div class="item-actions">${n.isPublished===false?`<button class="act-btn publish" onclick="quickPublish('notes','${n.id}','renderNotes')">🚀</button>`:`<button class="act-btn draft" onclick="quickUnpublish('notes','${n.id}','renderNotes')">⏸</button>`}<button class="act-btn" onclick="editDoc('notes','renderNotes','${n.id}')">✏️</button><button class="act-btn del" onclick="delItem('notes','${n.id}','renderNotes')">🗑</button></div></div>`).join('')}`; }
+window.renderNotes = renderNotes;
+
+async function renderNcert(){ const all = await fetchAll('ncert_books'); const filtered = applyFilterSearch(all,'ncert'); $('content').innerHTML = `<div class="section-title">📕 NCERT <button class="add-btn" onclick="editDoc('ncert_books','renderNcert')">➕ Add</button></div>${filterBar('ncert','renderNcert')}${filtered.length===0?'<div class="empty"><div class="big">📕</div>Koi book nahi</div>':''}${filtered.map(n=>`<div class="item-card" data-id="${n.id}"><div class="item-info"><h4>${esc(n.title||'—')}</h4><p><span class="badge blue">${esc(n.class||'—')}</span><span class="badge yellow">${esc(n.subject||'')}</span><span class="badge ${n.isPublished!==false?'green':'red'}">${n.isPublished!==false?'🟢':'🔴'}</span></p></div><div class="item-actions">${n.isPublished===false?`<button class="act-btn publish" onclick="quickPublish('ncert_books','${n.id}','renderNcert')">🚀</button>`:`<button class="act-btn draft" onclick="quickUnpublish('ncert_books','${n.id}','renderNcert')">⏸</button>`}<button class="act-btn" onclick="editDoc('ncert_books','renderNcert','${n.id}')">✏️</button><button class="act-btn del" onclick="delItem('ncert_books','${n.id}','renderNcert')">🗑</button></div></div>`).join('')}`; }
+window.renderNcert = renderNcert;
+
+async function renderPapers(){ const all = await fetchAll('papers'); const filtered = applyFilterSearch(all,'papers'); $('content').innerHTML = `<div class="section-title">📋 Papers <button class="add-btn" onclick="editDoc('papers','renderPapers')">➕ Add</button></div>${filterBar('papers','renderPapers')}${filtered.length===0?'<div class="empty"><div class="big">📋</div>Koi paper nahi</div>':''}${filtered.map(n=>`<div class="item-card" data-id="${n.id}"><div class="item-info"><h4>${esc(n.title||'—')}</h4><p><span class="badge blue">${esc(n.class||'—')}</span> ${esc(n.desc||'')} <span class="badge ${n.isPublished!==false?'green':'red'}">${n.isPublished!==false?'🟢':'🔴'}</span></p></div><div class="item-actions">${n.isPublished===false?`<button class="act-btn publish" onclick="quickPublish('papers','${n.id}','renderPapers')">🚀</button>`:`<button class="act-btn draft" onclick="quickUnpublish('papers','${n.id}','renderPapers')">⏸</button>`}<button class="act-btn" onclick="editDoc('papers','renderPapers','${n.id}')">✏️</button><button class="act-btn del" onclick="delItem('papers','${n.id}','renderPapers')">🗑</button></div></div>`).join('')}`; }
+window.renderPapers = renderPapers;
+
+window.editDoc = async (col,fn,id = null) => {
+  let item = {};
+  if(id) { const all = await fetchAll(col); item = all.find(x => x.id === id) || {}; }
+  const isPapers = col==='papers';
+  window._docCtx = {col,fn};
+  openModal(`<h3>${item.id?'✏️ Edit':'➕ Add'} <button class="modal-close" onclick="closeModal()">✕</button></h3><div class="form-group"><label>Title</label><input class="form-input" id="d-title" value="${esc(item.title||'')}"></div><div class="form-group"><label>Class</label><select class="form-input" id="d-class">${CLASSES.map(x=>`<option ${item.class===x?'selected':''}>${x}</option>`).join('')}</select></div>${isPapers?`<div class="form-group"><label>Description</label><input class="form-input" id="d-desc" value="${esc(item.desc||'')}"></div>`:`<div class="form-group"><label>Subject</label><input class="form-input" id="d-subject" value="${esc(item.subject||'')}"></div>`}<div class="form-group"><label>PDF URL</label><input class="form-input" id="d-pdfUrl" value="${esc(item.pdfUrl||'')}"></div><div class="btn-group"><button class="btn-secondary" onclick="saveDoc('${item.id||''}',false)">📄 Draft</button><button class="btn-primary" style="margin-top:0" onclick="saveDoc('${item.id||''}',true)">🚀 Live</button></div>`);
+};
+window.saveDoc = async (id,publish) => {
+  const {col,fn} = window._docCtx;
+  const isPapers = col==='papers';
+  const data = { title:$('d-title').value, class:$('d-class').value, pdfUrl:$('d-pdfUrl').value, isPublished:publish };
+  if(isPapers) data.desc = $('d-desc').value; else data.subject = $('d-subject').value;
+  if(!data.title) return toast('Title required','error');
+  try{ if(id) await update(col,id,data); else await create(col,data); toast(publish?'🚀 Published!':'📄 Draft saved'); closeModal(); if(typeof window[fn]==='function') window[fn](); }catch(e){ toast('Error: '+e.message,'error'); }
+};
+
+async function renderTimetable(){ const all = await fetchAll('timetable'); const filtered = applyFilterSearch(all,'timetable','day'); $('content').innerHTML = `<div class="section-title">📅 Timetable <button class="add-btn" onclick="editTT()">➕ Add</button></div>${filterBar('timetable','renderTimetable')}${filtered.length===0?'<div class="empty"><div class="big">📅</div>Koi entry nahi</div>':''}${filtered.map(n=>`<div class="item-card" data-id="${n.id}"><div class="item-info"><h4>${esc(n.day||'—')} — ${esc(n.subject||'—')}</h4><p><span class="badge blue">${esc(n.class||'—')}</span><span class="badge purple">${esc(n.time||'')}</span><span class="badge ${n.isPublished!==false?'green':'red'}">${n.isPublished!==false?'🟢':'🔴'}</span></p></div><div class="item-actions">${n.isPublished===false?`<button class="act-btn publish" onclick="quickPublish('timetable','${n.id}','renderTimetable')">🚀</button>`:`<button class="act-btn draft" onclick="quickUnpublish('timetable','${n.id}','renderTimetable')">⏸</button>`}<button class="act-btn" onclick="editTT('${n.id}')">✏️</button><button class="act-btn del" onclick="delItem('timetable','${n.id}','renderTimetable')">🗑</button></div></div>`).join('')}`; }
+window.renderTimetable = renderTimetable;
+window.editTT = async (id = null) => {
+  let t = {};
+  if(id) { const all = await fetchAll('timetable'); t = all.find(x => x.id === id) || {}; }
+  openModal(`<h3>${t.id?'✏️ Edit':'➕ Add'} Timetable <button class="modal-close" onclick="closeModal()">✕</button></h3><div class="form-row"><div class="form-group"><label>Class</label><select class="form-input" id="tt-class">${CLASSES.map(x=>`<option ${t.class===x?'selected':''}>${x}</option>`).join('')}</select></div><div class="form-group"><label>Day</label><input class="form-input" id="tt-day" value="${esc(t.day||'')}"></div></div><div class="form-row"><div class="form-group"><label>Subject</label><input class="form-input" id="tt-subject" value="${esc(t.subject||'')}"></div><div class="form-group"><label>Time</label><input class="form-input" id="tt-time" value="${esc(t.time||'')}"></div></div><div class="btn-group"><button class="btn-secondary" onclick="saveTT('${t.id||''}',false)">📄 Draft</button><button class="btn-primary" style="margin-top:0" onclick="saveTT('${t.id||''}',true)">🚀 Live</button></div>`);
+};
+window.saveTT = async (id,publish) => { const data={class:$('tt-class').value,day:$('tt-day').value,subject:$('tt-subject').value,time:$('tt-time').value,isPublished:publish}; try{ if(id) await update('timetable',id,data); else await create('timetable',data); toast('Saved!'); closeModal(); renderTimetable(); }catch(e){ toast('Error: '+e.message,'error'); } };
+
+/* ===== NOTIFICATIONS WITH IMAGE + PUSH ===== */
+async function renderNotifications(){
+  const q = query(collection(db,"notifications"),orderBy("createdAt","desc"),limit(30));
+  const snap = await getDocs(q);
+  const list = snap.docs.map(d=>({id:d.id,...d.data()}));
+  $('content').innerHTML = `<div class="section-title">🔔 Notifications <button class="add-btn" onclick="addNotif()">➕ Send</button></div>
+    ${list.length===0?'<div class="empty"><div class="big">🔔</div>Koi notification nahi</div>':''}
+    ${list.map(n=>`<div class="item-card" data-id="${n.id}" style="flex-wrap:wrap;">
+      ${n.imageUrl ? `<img src="${esc(n.imageUrl)}" style="width:60px;height:60px;border-radius:10px;object-fit:cover;flex-shrink:0;" onerror="this.style.display='none'">` : ''}
+      <div class="item-info"><h4>${esc(n.title||'—')}</h4><p>${esc(n.message||'')}</p></div>
+      <div class="item-actions"><button class="act-btn del" onclick="delItem('notifications','${n.id}','renderNotifications')">🗑</button></div>
+    </div>`).join('')}`;
+}
+window.renderNotifications = renderNotifications;
+
+window.addNotif = () => openModal(`
+  <h3>🔔 Send Notification <button class="modal-close" onclick="closeModal()">✕</button></h3>
+  <div class="form-group"><label>Title *</label><input class="form-input" id="n-title" placeholder="Notification title"></div>
+  <div class="form-group"><label>Message *</label><textarea class="form-input" id="n-message" rows="3" placeholder="Notification text"></textarea></div>
+  <div class="form-group"><label>Image URL (optional)</label><input class="form-input" id="n-image" placeholder="https://example.com/image.jpg"></div>
+  <div class="form-group"><label>Click URL (optional)</label><input class="form-input" id="n-url" placeholder="/" value="/"></div>
+  <div style="display:flex;gap:8px;margin-bottom:14px;">
+    <div class="toggle-row" style="flex:1;margin:0;">
+      <div class="left"><h4>Push to Mobile</h4><p>FCM</p></div>
+      <div class="switch on" id="n-push" onclick="this.classList.toggle('on')"></div>
+    </div>
+    <div class="toggle-row" style="flex:1;margin:0;">
+      <div class="left"><h4>In-App</h4><p>App me</p></div>
+      <div class="switch on" id="n-inapp" onclick="this.classList.toggle('on')"></div>
+    </div>
+  </div>
+  <button class="btn-primary" id="n-send-btn" onclick="saveNotif()">🚀 Send Notification</button>
+`);
+
+window.saveNotif = async () => {
+  const title = $('n-title').value.trim();
+  const message = $('n-message').value.trim();
+  const imageUrl = $('n-image').value.trim();
+  const clickUrl = $('n-url').value.trim() || '/';
+  const sendPush = $('n-push').classList.contains('on');
+  const sendInApp = $('n-inapp').classList.contains('on');
+  if(!title || !message) return toast('Title + Message required','error');
+  if(!sendPush && !sendInApp) return toast('Kam se kam ek ON karo','error');
+  const btn = $('n-send-btn'); btn.disabled = true; btn.textContent = '⏳ Sending...';
+  try {
+    if(sendInApp){
+      await create('notifications', { title, message, imageUrl: imageUrl || '', createdAt: serverTimestamp() });
+    }
+    if(sendPush){
+      try {
+        const sendPushFn = httpsCallable(functions, 'sendPushNotification');
+        const result = await sendPushFn({ title, body: message, image: imageUrl, url: clickUrl });
+        console.log('Push result:', result.data);
+        toast(`🚀 Push sent to ${result.data.successCount || 0} users`);
+      } catch(pushErr){
+        console.error('Push error:', pushErr);
+        toast('⚠️ Push failed (in-app saved)', 'error');
+      }
+    } else { toast('✅ In-app notification sent'); }
+    closeModal();
+    renderNotifications();
+  } catch(err){ toast('❌ ' + err.message, 'error'); }
+  finally { btn.disabled = false; btn.textContent = '🚀 Send Notification'; }
+};
+
+/* ===== PAYMENTS ===== */
+async function renderPayments(){
+  const all = await fetchAll('payments'); all.sort((a,b)=>(b.date?.toMillis?.()||0)-(a.date?.toMillis?.()||0));
+  $('content').innerHTML = `<div class="section-title">💳 Payments</div>${all.length===0?'<div class="empty"><div class="big">💳</div>Koi payment nahi</div>':''}${all.map(p=>`<div class="item-card" data-id="${p.id}" style="flex-wrap:wrap"><div class="item-info"><h4>${esc(p.name||'—')} <span class="badge ${p.status==='approved'?'green':p.status==='rejected'?'red':'yellow'}">${p.status||'pending'}</span></h4><p>📚 ${esc(p.courseTitle||'')}<br>₹${p.amount||0} · UTR: ${esc(p.utr||'')}<br>📱 ${esc(p.mobile||'')}</p></div>${p.status==='pending'?`<div style="display:flex;gap:6px;width:100%;margin-top:8px"><button class="btn-primary" style="margin:0;background:var(--grad-green);padding:10px" onclick="approvePay('${p.id}')">✅ Approve</button><button class="btn-primary" style="margin:0;background:var(--grad-red);padding:10px" onclick="rejectPay('${p.id}')">❌ Reject</button></div>`:''}</div>`).join('')}`;
+}
+window.renderPayments = renderPayments;
+window.approvePay = async id => { await update('payments',id,{status:'approved',approvedAt:new Date()}); toast('✅ Approved'); renderPayments(); };
+window.rejectPay = async id => { await update('payments',id,{status:'rejected',rejectedAt:new Date()}); toast('Rejected'); renderPayments(); };
+
+/* ===== DOUBTS ===== */
+async function renderDoubts(){
+  const all = await fetchAll('doubts'); all.sort((a,b)=>(b.createdAt?.toMillis?.()||0)-(a.createdAt?.toMillis?.()||0));
+  $('content').innerHTML = `<div class="section-title">❓ Doubts</div>${all.length===0?'<div class="empty"><div class="big">❓</div>Koi doubt nahi</div>':''}${all.map(d=>`<div class="item-card" data-id="${d.id}" style="flex-wrap:wrap"><div class="item-info"><h4>${esc(d.name||'—')} <span class="badge ${d.status==='resolved'?'green':'yellow'}">${d.status||'pending'}</span></h4><p>${esc(d.doubt||'')}<br><small>${esc(d.class||'')} · ${esc(d.mobile||'')}</small></p></div><div style="display:flex;gap:6px;width:100%;margin-top:8px">${d.mobile&&d.mobile!=='Not Provided'?`<a href="https://wa.me/91${esc(d.mobile)}" target="_blank" style="flex:1;background:var(--grad-green);color:#fff;padding:10px;border-radius:10px;text-align:center;text-decoration:none;font-weight:800;font-size:13px">💬 WhatsApp</a>`:''}${d.status!=='resolved'?`<button style="flex:1;background:var(--grad-primary);color:#fff;padding:10px;border-radius:10px;font-weight:800;font-size:13px" onclick="resolveDoubt('${d.id}')">✅ Resolve</button>`:''}</div></div>`).join('')}`;
+}
+window.renderDoubts = renderDoubts;
+window.resolveDoubt = async id => { await update('doubts',id,{status:'resolved'}); toast('Resolved'); renderDoubts(); };
+
+/* ===== USERS ===== */
+async function renderUsers(){
+  const all = await fetchAll('users'); const s = getSearch('users');
+  const filtered = s ? all.filter(u=>(u.name||'').toLowerCase().includes(s)||(u.mobile||'').includes(s)) : all;
+  $('content').innerHTML = `<div class="section-title">👥 Students (${all.length})</div>${searchBar('users','renderUsers','Search name / mobile...')}${filtered.length===0?'<div class="empty"><div class="big">👥</div>Koi user nahi</div>':''}${filtered.map(u=>`<div class="item-card"><div style="width:44px;height:44px;border-radius:50%;background:var(--grad-primary);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;flex-shrink:0">${esc((u.name||'?').charAt(0).toUpperCase())}</div><div class="item-info"><h4>${esc(u.name||'—')}</h4><p><span class="badge blue">${esc(u.class||'—')}</span> ${esc(u.mobile||u.email||'')}</p></div></div>`).join('')}`;
+}
+window.renderUsers = renderUsers;
+</script>
+</body>
+</html>
